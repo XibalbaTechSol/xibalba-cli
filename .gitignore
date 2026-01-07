@@ -1,0 +1,34 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+firebase-debug.log
+
+# Dependencies
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# Build outputs
+ui/dist/
+test-app/dist/
+
+# Browser
+.chrome-profile/
+.browser_ws_url
+
+# System
+.DS_Store
+*.swp
+*.swo
+
+# Git
+.git/index.lock
+chromium/
+chromium/
+node_modules/

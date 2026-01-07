@@ -1,0 +1,6 @@
+[submodule "toad"]
+	path = toad
+	url = https://github.com/batrachianai/toad.git
+[submodule "novnc"]
+	path = novnc
+	url = https://github.com/novnc/noVNC.git
