@@ -1,12 +1,14 @@
 import React from 'react';
 import { Globe, Terminal, Box } from 'lucide-react';
+import Jules from '../Icons/Jules';
 
 interface HeaderPaneProps {
     onToggleTerminal?: () => void;
     onToggleEditor?: () => void;
     onToggleBrowser?: () => void;
     onToggleInbox?: () => void;
-    viewMode?: 'browser' | 'editor' | 'artifacts';
+    onToggleJules?: () => void;
+    viewMode?: 'browser' | 'editor' | 'artifacts' | 'jules';
 }
 
 const HeaderPane: React.FC<HeaderPaneProps> = ({
@@ -14,6 +16,7 @@ const HeaderPane: React.FC<HeaderPaneProps> = ({
     onToggleEditor,
     onToggleBrowser,
     onToggleInbox,
+    onToggleJules,
     viewMode
 }) => {
     return (
@@ -40,6 +43,13 @@ const HeaderPane: React.FC<HeaderPaneProps> = ({
                             className={`hover:text-[#ECEFF4] transition-colors flex items-center gap-1.5 ${viewMode === 'editor' ? 'text-[#88C0D0] font-bold underline' : 'text-[#D8DEE9]'}`}
                         >
                             Script Editor
+                        </button>
+                        <button
+                            onClick={onToggleJules}
+                            className={`hover:text-[#ECEFF4] transition-colors ${viewMode === 'jules' ? 'text-[#88C0D0]' : 'text-[#D8DEE9]'}`}
+                            title="Jules AI"
+                        >
+                            <Jules size={14} strokeWidth={1.5} />
                         </button>
                         <button
                             onClick={onToggleBrowser}
