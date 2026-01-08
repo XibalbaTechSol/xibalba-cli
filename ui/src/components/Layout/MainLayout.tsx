@@ -21,7 +21,6 @@ import Sidebar from './Sidebar';
 import ArtifactViewer from './ArtifactViewer';
 import CodeEditor from '../Editor/CodeEditor';
 import HeaderPane from './HeaderPane';
-import ChromiumFrame from '../ChromiumFrame';
 import ScriptEditor from '../Editor/ScriptEditor';
 import CLIInstance from '../CLIInstance';
 import { Instance } from '../InstanceList';
@@ -34,7 +33,36 @@ const MainLayout: React.FC<MainLayoutProps> = (props) => {
     const [currentFilePath, setCurrentFilePath] = useState<string>('/home/xibalbasolutions/Desktop/xibalba-cli/IMPLEMENTATION_PLAN.md');
     const [currentFileContent, setCurrentFileContent] = useState<string>('');
     const [inputValue, setInputValue] = useState('http://localhost:3001');
+    const [browserTab, setBrowserTab] = useState<'playback' | 'devtools'>('playback');
     const [isLoading, setIsLoading] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
+    const [sessionId, setSessionId] = useState<string | null>(null);
+    const [screenshotUrls, setScreenshotUrls] = useState<string[]>([]);
+
+    const handleStartRecording = async () => {
+        try {
+            const response = await axios.post(`${ORCHESTRATOR_URL}/browser/session/start`);
+            setSessionId(response.data.session_id);
+            setIsRecording(true);
+            setScreenshotUrls([]); // Clear previous screenshots
+        } catch (error) {
+            console.error("Failed to start recording session:", error);
+        }
+    };
+
+    const handleStopRecording = async () => {
+        try {
+            await axios.post(`${ORCHESTRATOR_URL}/browser/session/end`);
+            setIsRecording(false);
+            if (sessionId) {
+                const response = await axios.get(`${ORCHESTRATOR_URL}/browser/session/${sessionId}`);
+                const imageUrls = response.data.images.map((base64: string) => `data:image/png;base64,${base64}`);
+                setScreenshotUrls(imageUrls);
+            }
+        } catch (error) {
+            console.error("Failed to stop recording session:", error);
+        }
+    };
 
     const selectedInstance = props.instances.find(i => i.id === props.selectedId);
 
@@ -192,10 +220,28 @@ const MainLayout: React.FC<MainLayoutProps> = (props) => {
                                         </div>
                                     )}
 
+                                    {/* Browser/Editor Tab Headers */}
+                                    {viewMode === 'browser' && (
+                                        <div className="h-9 bg-[#3B4252] border-b border-[#434C5E] flex items-center px-4 gap-4 flex-shrink-0">
+                                            <button onClick={() => setBrowserTab('playback')} className={`text-xs font-bold ${browserTab === 'playback' ? 'text-[#88C0D0]' : 'text-[#D8DEE9]'}`}>Playback</button>
+                                            <button onClick={() => setBrowserTab('devtools')} className={`text-xs font-bold ${browserTab === 'devtools' ? 'text-[#88C0D0]' : 'text-[#D8DEE9]'}`}>DevTools</button>
+                                            <div className="flex-grow"></div>
+                                            {!isRecording ? (
+                                                <button onClick={handleStartRecording} className="text-xs font-bold text-[#A3BE8C]">Start Recording</button>
+                                            ) : (
+                                                <button onClick={handleStopRecording} className="text-xs font-bold text-[#BF616A]">Stop Recording</button>
+                                            )}
+                                        </div>
+                                    )}
+
                                     {/* Content Area */}
-                                    <div className="flex-1 overflow-hidden">
+                                    <div className="flex-1 overflow-auto">
                                         {viewMode === 'browser' ? (
-                                            <ChromiumFrame />
+                                            browserTab === 'playback' ? (
+                                                <PlaybackViewer screenshotUrls={screenshotUrls} />
+                                            ) : (
+                                                <DevTools />
+                                            )
                                         ) : viewMode === 'editor' && !currentFilePath ? (
                                             <ScriptEditor />
                                         ) : viewMode === 'jules' ? (

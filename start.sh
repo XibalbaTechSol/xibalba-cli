@@ -12,13 +12,10 @@ fi
 
 # Enhanced cleanup - kill all related processes
 echo "Cleaning up existing processes..."
-pkill -9 -f Xvfb || true
 pkill -9 -f chrome || true
 pkill -9 -f chromium || true
 pkill -9 -f "toad serve" || true
 pkill -9 -f vite || true
-pkill -9 -f websockify || true
-pkill -9 -f x11vnc || true
 pkill -9 -f uvicorn || true
 pkill -9 -f "npm run dev" || true
 pkill -9 -f ttyd || true
@@ -57,10 +54,8 @@ echo "$WS_ENDPOINT" > toad/.browser_ws_url
 
 # 2. Start Orchestrator (Backend API for browser/terminal control)
 echo "[2/6] Starting Orchestrator on port 3000..."
-cd toad
-uv run python ../orchestrator.py > ../logs/orchestrator.log 2>&1 &
+uv run python orchestrator.py > logs/orchestrator.log 2>&1 &
 ORCHESTRATOR_PID=$!
-cd ..
 echo "  ✓ Orchestrator started"
 
 # 3. Start Test App (Vite dev server)
@@ -100,7 +95,7 @@ echo "🔧 Orchestrator:  http://localhost:3000"
 echo "🌐 Test App:      http://localhost:3001"
 echo "🤖 Toad Server:   http://localhost:8000"
 echo "💻 Terminal:      http://localhost:7681"
-echo "🖥️  Browser VNC:   http://localhost:6080/vnc.html?autoconnect=true&resize=scale"
+echo "🖥️  Browser available for automation on port 9222"
 echo ""
 echo "📁 Logs location: ./logs/"
 echo ""
