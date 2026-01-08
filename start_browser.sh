@@ -38,7 +38,7 @@ CHROME_PID=$!
 sleep 2
 
 echo "Starting x11vnc..."
-env -u WAYLAND_DISPLAY -u XDG_SESSION_TYPE x11vnc -display $DISPLAY_NUM -forever -nopw -shared -bg -o x11vnc.log 2>&1
+env -u WAYLAND_DISPLAY -u XDG_SESSION_TYPE /usr/bin/x11vnc -display $DISPLAY_NUM -forever -nopw -shared -bg -o x11vnc.log 2>&1
 X11VNC_PID=$!
 
 echo "Starting websockify..."

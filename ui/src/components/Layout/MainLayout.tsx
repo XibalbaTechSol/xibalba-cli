@@ -25,11 +25,12 @@ import ChromiumFrame from '../ChromiumFrame';
 import ScriptEditor from '../Editor/ScriptEditor';
 import CLIInstance from '../CLIInstance';
 import { Instance } from '../InstanceList';
+import JulesTerminal from '../Jules/JulesTerminal';
 
 const MainLayout: React.FC<MainLayoutProps> = (props) => {
     const [showTerminal, setShowTerminal] = useState(false);
     const [showInbox, setShowInbox] = useState(false);
-    const [viewMode, setViewMode] = useState<'artifacts' | 'editor' | 'browser'>('browser');
+    const [viewMode, setViewMode] = useState<'artifacts' | 'editor' | 'browser' | 'jules'>('browser');
     const [currentFilePath, setCurrentFilePath] = useState<string>('/home/xibalbasolutions/Desktop/xibalba-cli/IMPLEMENTATION_PLAN.md');
     const [currentFileContent, setCurrentFileContent] = useState<string>('');
     const [inputValue, setInputValue] = useState('http://localhost:3001');
@@ -109,6 +110,9 @@ const MainLayout: React.FC<MainLayoutProps> = (props) => {
                 }}
                 onToggleBrowser={() => {
                     setViewMode('browser');
+                }}
+                onToggleJules={() => {
+                    setViewMode('jules');
                 }}
                 onToggleInbox={() => setShowInbox(!showInbox)}
                 viewMode={viewMode}
@@ -194,6 +198,8 @@ const MainLayout: React.FC<MainLayoutProps> = (props) => {
                                             <ChromiumFrame />
                                         ) : viewMode === 'editor' && !currentFilePath ? (
                                             <ScriptEditor />
+                                        ) : viewMode === 'jules' ? (
+                                            <JulesTerminal />
                                         ) : viewMode === 'editor' ? (
                                             <CodeEditor
                                                 filePath={currentFilePath}
