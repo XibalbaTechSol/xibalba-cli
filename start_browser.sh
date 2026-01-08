@@ -1,31 +1,31 @@
 #!/bin/bash
 
 # Configuration
-DISPLAY_NUM=":101"
-RESOLUTION="1280x720x24"
-WEB_PORT="6080"
 CHROME_DEBUG_PORT="9222"
 
-echo "Starting Browser Environment..."
+echo "Starting Headless Chrome..."
 
-# Cleanup
-echo "Cleaning up..."
-pkill -9 -x Xvfb || true
+# Cleanup existing Chrome processes
 pkill -9 -f "remote-debugging-port=$CHROME_DEBUG_PORT" || true
-pkill -9 -x x11vnc || true
-pkill -9 -f "websockify.*$WEB_PORT" || true
-rm -f /tmp/.X101-lock /tmp/.X11-unix/X101 2>/dev/null
-
 sleep 1
 
-echo "Starting Xvfb on $DISPLAY_NUM..."
-Xvfb $DISPLAY_NUM -screen 0 $RESOLUTION -ac +extension GLX +render -noreset > xvfb.log 2>&1 &
-Xvfb_PID=$!
-sleep 3
+# Find a suitable Chrome executable
+if command -v google-chrome >/dev/null 2>&1; then
+    CHROME_EXEC="google-chrome"
+elif command -v chromium-browser >/dev/null 2>&1; then
+    CHROME_EXEC="chromium-browser"
+elif [ -f "./chromium/chrome" ]; then
+    CHROME_EXEC="./chromium/chrome"
+else
+    echo "Error: No suitable Chrome or Chromium executable found."
+    exit 1
+fi
 
-echo "Starting Chromium..."
-export DISPLAY=$DISPLAY_NUM
-./chromium/chrome \
+echo "Using Chrome executable: $CHROME_EXEC"
+
+# Start headless Chrome with remote debugging
+$CHROME_EXEC \
+    --headless \
     --no-sandbox \
     --disable-gpu \
     --remote-debugging-port=$CHROME_DEBUG_PORT \
@@ -34,16 +34,10 @@ export DISPLAY=$DISPLAY_NUM
     --disable-dev-shm-usage \
     --no-first-run \
     http://localhost:3001 > chrome.log 2>&1 &
+
 CHROME_PID=$!
-sleep 2
 
-echo "Starting x11vnc..."
-env -u WAYLAND_DISPLAY -u XDG_SESSION_TYPE x11vnc -display $DISPLAY_NUM -forever -nopw -shared -bg -o x11vnc.log 2>&1
-X11VNC_PID=$!
+echo "Headless Chrome started with PID $CHROME_PID on debug port $CHROME_DEBUG_PORT."
+echo "Browser is ready for automation."
 
-echo "Starting websockify..."
-websockify --web ./novnc $WEB_PORT 127.0.0.1:5900 > websockify.log 2>&1 &
-WEBSOCK_PID=$!
-
-echo "Browser ready."
-wait
+wait $CHROME_PID
