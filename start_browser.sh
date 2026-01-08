@@ -35,7 +35,9 @@ $CHROME_EXEC \
     --no-first-run \
     http://localhost:3001 > chrome.log 2>&1 &
 
-CHROME_PID=$!
+echo "Starting x11vnc..."
+env -u WAYLAND_DISPLAY -u XDG_SESSION_TYPE /usr/bin/x11vnc -display $DISPLAY_NUM -forever -nopw -shared -bg -o x11vnc.log 2>&1
+X11VNC_PID=$!
 
 echo "Headless Chrome started with PID $CHROME_PID on debug port $CHROME_DEBUG_PORT."
 echo "Browser is ready for automation."
